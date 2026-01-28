@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { teamService } from '../../services/teamService';
+import { HiOutlineOfficeBuilding, HiOutlineUserCircle, HiOutlineRefresh } from 'react-icons/hi';
 
 const TeamList = () => {
   const [teams, setTeams] = useState([]);
@@ -26,54 +27,66 @@ const TeamList = () => {
 
   if (loading) {
     return (
-      <div className="text-center py-5">
-        <div className="spinner-border" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
+      <div className="loading-container">
+        <div className="spinner-large"></div>
+        <p>Loading teams...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="alert alert-danger" role="alert">
-        {error}
+      <div className="alert alert-error">
+        <span>{error}</span>
       </div>
     );
   }
 
   return (
-    <div>
-      <h3 className="mb-4">All Teams</h3>
+    <div className="team-list-container">
+      <div className="list-header">
+        <div className="list-count">
+          <span className="count-number">{teams.length}</span>
+          <span className="count-label">Total Teams</span>
+        </div>
+        <button className="btn btn-secondary refresh-btn" onClick={fetchTeams}>
+          <HiOutlineRefresh />
+          Refresh
+        </button>
+      </div>
 
       {teams.length === 0 ? (
-        <div className="alert alert-info" role="alert">
-          No teams found. Create a team to get started.
+        <div className="empty-state">
+          <HiOutlineOfficeBuilding className="empty-icon" />
+          <h3>No Teams Found</h3>
+          <p>Create a team to get started with organizing your workforce.</p>
         </div>
       ) : (
-        <div className="row g-4">
+        <div className="team-grid">
           {teams.map((team) => (
-            <div key={team.id} className="col-12 col-md-6 col-lg-4">
-              <div className="card shadow-sm h-100">
-                <div className="card-body">
-                  <h5 className="card-title">{team.name}</h5>
-                  <p className="card-text text-muted">
-                    <strong>Team Lead:</strong>{' '}
+            <div key={team.id} className="team-card">
+              <div className="team-card-header">
+                <div className="team-icon">
+                  <HiOutlineOfficeBuilding />
+                </div>
+                <span className="team-id">#{team.id}</span>
+              </div>
+              <h3 className="team-name">{team.name}</h3>
+              <div className="team-lead-info">
+                <HiOutlineUserCircle className="lead-icon" />
+                <div className="lead-details">
+                  <span className="lead-label">Team Lead</span>
+                  <span className="lead-name">
                     {team.teamLead
                       ? `${team.teamLead.firstName} ${team.teamLead.lastName}`
                       : 'Not assigned'}
-                  </p>
-                  <span className="badge bg-secondary">ID: {team.id}</span>
+                  </span>
                 </div>
               </div>
             </div>
           ))}
         </div>
       )}
-
-      <button className="btn btn-secondary mt-4" onClick={fetchTeams}>
-        Refresh
-      </button>
     </div>
   );
 };

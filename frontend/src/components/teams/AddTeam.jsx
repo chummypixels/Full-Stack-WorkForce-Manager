@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { teamService } from '../../services/teamService';
+import { HiOutlineCheckCircle, HiOutlineExclamationCircle } from 'react-icons/hi';
 
 const AddTeam = () => {
   const [teamName, setTeamName] = useState('');
@@ -20,7 +21,7 @@ const AddTeam = () => {
       setTeamName('');
     } catch (error) {
       setAlert({
-        type: 'danger',
+        type: 'error',
         message: error.response?.data?.message || 'Failed to create team. Please try again.',
       });
     } finally {
@@ -29,45 +30,49 @@ const AddTeam = () => {
   };
 
   return (
-    <div className="row justify-content-center">
-      <div className="col-md-8 col-lg-6">
-        <div className="card shadow-sm">
-          <div className="card-body">
-            <h3 className="card-title mb-4">Add New Team</h3>
-
-            {alert && (
-              <div className={`alert alert-${alert.type} alert-dismissible fade show`} role="alert">
-                {alert.message}
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setAlert(null)}
-                ></button>
-              </div>
+    <div className="form-container">
+      <div className="form-card">
+        {alert && (
+          <div className={`alert alert-${alert.type}`}>
+            {alert.type === 'success' ? (
+              <HiOutlineCheckCircle className="alert-icon" />
+            ) : (
+              <HiOutlineExclamationCircle className="alert-icon" />
             )}
-
-            <form onSubmit={handleSubmit}>
-              <div className="mb-3">
-                <label htmlFor="teamName" className="form-label">
-                  Team Name <span className="text-danger">*</span>
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="teamName"
-                  value={teamName}
-                  onChange={(e) => setTeamName(e.target.value)}
-                  placeholder="e.g., Development Team"
-                  required
-                />
-              </div>
-
-              <button type="submit" className="btn btn-primary" disabled={loading}>
-                {loading ? 'Creating...' : 'Create Team'}
-              </button>
-            </form>
+            <span>{alert.message}</span>
+            <button className="alert-close" onClick={() => setAlert(null)}>&times;</button>
           </div>
-        </div>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="teamName" className="form-label">
+              Team Name <span className="required">*</span>
+            </label>
+            <input
+              type="text"
+              className="form-input"
+              id="teamName"
+              value={teamName}
+              onChange={(e) => setTeamName(e.target.value)}
+              placeholder="e.g., Development Team"
+              required
+            />
+          </div>
+
+          <div className="form-actions">
+            <button type="submit" className="btn btn-primary" disabled={loading}>
+              {loading ? (
+                <>
+                  <span className="spinner"></span>
+                  Creating...
+                </>
+              ) : (
+                'Create Team'
+              )}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

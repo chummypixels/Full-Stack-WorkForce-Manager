@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { teamService } from '../../services/teamService';
+import { HiOutlineCheckCircle, HiOutlineExclamationCircle } from 'react-icons/hi';
 
 const AssignRole = () => {
   const [teams, setTeams] = useState([]);
@@ -60,7 +61,7 @@ const AssignRole = () => {
       setSelectedRole('');
     } catch (error) {
       setAlert({
-        type: 'danger',
+        type: 'error',
         message: error.response?.data?.message || 'Failed to assign role.',
       });
     } finally {
@@ -68,97 +69,105 @@ const AssignRole = () => {
     }
   };
 
+  const formatRole = (role) => {
+    return role.replace('_', ' ');
+  };
+
   return (
-    <div className="row justify-content-center">
-      <div className="col-md-8 col-lg-6">
-        <div className="card shadow-sm">
-          <div className="card-body">
-            <h3 className="card-title mb-4">Assign Role to Team Member</h3>
-
-            {alert && (
-              <div className={`alert alert-${alert.type} alert-dismissible fade show`} role="alert">
-                {alert.message}
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setAlert(null)}
-                ></button>
-              </div>
+    <div className="form-container">
+      <div className="form-card">
+        {alert && (
+          <div className={`alert alert-${alert.type}`}>
+            {alert.type === 'success' ? (
+              <HiOutlineCheckCircle className="alert-icon" />
+            ) : (
+              <HiOutlineExclamationCircle className="alert-icon" />
             )}
-
-            <form onSubmit={handleSubmit}>
-              <div className="mb-3">
-                <label htmlFor="team" className="form-label">
-                  Select Team <span className="text-danger">*</span>
-                </label>
-                <select
-                  className="form-select"
-                  id="team"
-                  value={selectedTeam}
-                  onChange={(e) => setSelectedTeam(e.target.value)}
-                  required
-                >
-                  <option value="">Choose a team...</option>
-                  {teams.map((team) => (
-                    <option key={team.id} value={team.id}>
-                      {team.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="mb-3">
-                <label htmlFor="user" className="form-label">
-                  Select Team Member <span className="text-danger">*</span>
-                </label>
-                <select
-                  className="form-select"
-                  id="user"
-                  value={selectedUser}
-                  onChange={(e) => setSelectedUser(e.target.value)}
-                  required
-                  disabled={!selectedTeam || teamMembers.length === 0}
-                >
-                  <option value="">Choose a team member...</option>
-                  {teamMembers.map((member) => (
-                    <option key={member.id} value={member.user.id}>
-                      {member.user.firstName} {member.user.lastName} (Current: {member.role})
-                    </option>
-                  ))}
-                </select>
-                {selectedTeam && teamMembers.length === 0 && (
-                  <div className="form-text text-warning">
-                    No members in this team. Assign users first.
-                  </div>
-                )}
-              </div>
-
-              <div className="mb-3">
-                <label htmlFor="role" className="form-label">
-                  Select Role <span className="text-danger">*</span>
-                </label>
-                <select
-                  className="form-select"
-                  id="role"
-                  value={selectedRole}
-                  onChange={(e) => setSelectedRole(e.target.value)}
-                  required
-                >
-                  <option value="">Choose a role...</option>
-                  {roles.map((role) => (
-                    <option key={role} value={role}>
-                      {role.replace('_', ' ')}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <button type="submit" className="btn btn-primary" disabled={loading}>
-                {loading ? 'Assigning...' : 'Assign Role'}
-              </button>
-            </form>
+            <span>{alert.message}</span>
+            <button className="alert-close" onClick={() => setAlert(null)}>&times;</button>
           </div>
-        </div>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="team" className="form-label">
+              Select Team <span className="required">*</span>
+            </label>
+            <select
+              className="form-select"
+              id="team"
+              value={selectedTeam}
+              onChange={(e) => setSelectedTeam(e.target.value)}
+              required
+            >
+              <option value="">Choose a team...</option>
+              {teams.map((team) => (
+                <option key={team.id} value={team.id}>
+                  {team.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="user" className="form-label">
+              Select Team Member <span className="required">*</span>
+            </label>
+            <select
+              className="form-select"
+              id="user"
+              value={selectedUser}
+              onChange={(e) => setSelectedUser(e.target.value)}
+              required
+              disabled={!selectedTeam || teamMembers.length === 0}
+            >
+              <option value="">Choose a team member...</option>
+              {teamMembers.map((member) => (
+                <option key={member.id} value={member.user.id}>
+                  {member.user.firstName} {member.user.lastName} (Current: {formatRole(member.role)})
+                </option>
+              ))}
+            </select>
+            {selectedTeam && teamMembers.length === 0 && (
+              <span className="form-hint warning">
+                No members in this team. Assign users first.
+              </span>
+            )}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="role" className="form-label">
+              Select Role <span className="required">*</span>
+            </label>
+            <select
+              className="form-select"
+              id="role"
+              value={selectedRole}
+              onChange={(e) => setSelectedRole(e.target.value)}
+              required
+            >
+              <option value="">Choose a role...</option>
+              {roles.map((role) => (
+                <option key={role} value={role}>
+                  {formatRole(role)}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-actions">
+            <button type="submit" className="btn btn-primary" disabled={loading}>
+              {loading ? (
+                <>
+                  <span className="spinner"></span>
+                  Assigning...
+                </>
+              ) : (
+                'Assign Role'
+              )}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

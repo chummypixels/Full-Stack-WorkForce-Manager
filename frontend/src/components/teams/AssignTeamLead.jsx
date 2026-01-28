@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { teamService } from '../../services/teamService';
 import { userService } from '../../services/userService';
+import { HiOutlineCheckCircle, HiOutlineExclamationCircle, HiOutlineUserCircle } from 'react-icons/hi';
 
 const AssignTeamLead = () => {
   const [teams, setTeams] = useState([]);
@@ -53,7 +54,7 @@ const AssignTeamLead = () => {
       setSelectedUser('');
     } catch (error) {
       setAlert({
-        type: 'danger',
+        type: 'error',
         message: error.response?.data?.message || 'Failed to assign team lead.',
       });
     } finally {
@@ -62,76 +63,86 @@ const AssignTeamLead = () => {
   };
 
   return (
-    <div className="row justify-content-center">
-      <div className="col-md-8 col-lg-6">
-        <div className="card shadow-sm">
-          <div className="card-body">
-            <h3 className="card-title mb-4">Assign Team Lead</h3>
-
-            {alert && (
-              <div className={`alert alert-${alert.type} alert-dismissible fade show`} role="alert">
-                {alert.message}
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setAlert(null)}
-                ></button>
-              </div>
+    <div className="form-container">
+      <div className="form-card">
+        {alert && (
+          <div className={`alert alert-${alert.type}`}>
+            {alert.type === 'success' ? (
+              <HiOutlineCheckCircle className="alert-icon" />
+            ) : (
+              <HiOutlineExclamationCircle className="alert-icon" />
             )}
-
-            <form onSubmit={handleSubmit}>
-              <div className="mb-3">
-                <label htmlFor="team" className="form-label">
-                  Select Team <span className="text-danger">*</span>
-                </label>
-                <select
-                  className="form-select"
-                  id="team"
-                  value={selectedTeam}
-                  onChange={(e) => setSelectedTeam(e.target.value)}
-                  required
-                >
-                  <option value="">Choose a team...</option>
-                  {teams.map((team) => (
-                    <option key={team.id} value={team.id}>
-                      {team.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {currentTeamLead && (
-                <div className="alert alert-info">
-                  Current Team Lead: {currentTeamLead.firstName} {currentTeamLead.lastName}
-                </div>
-              )}
-
-              <div className="mb-3">
-                <label htmlFor="user" className="form-label">
-                  Select User <span className="text-danger">*</span>
-                </label>
-                <select
-                  className="form-select"
-                  id="user"
-                  value={selectedUser}
-                  onChange={(e) => setSelectedUser(e.target.value)}
-                  required
-                >
-                  <option value="">Choose a user...</option>
-                  {users.map((user) => (
-                    <option key={user.id} value={user.id}>
-                      {user.firstName} {user.lastName} ({user.location})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <button type="submit" className="btn btn-primary" disabled={loading}>
-                {loading ? 'Assigning...' : 'Assign Team Lead'}
-              </button>
-            </form>
+            <span>{alert.message}</span>
+            <button className="alert-close" onClick={() => setAlert(null)}>&times;</button>
           </div>
-        </div>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="team" className="form-label">
+              Select Team <span className="required">*</span>
+            </label>
+            <select
+              className="form-select"
+              id="team"
+              value={selectedTeam}
+              onChange={(e) => setSelectedTeam(e.target.value)}
+              required
+            >
+              <option value="">Choose a team...</option>
+              {teams.map((team) => (
+                <option key={team.id} value={team.id}>
+                  {team.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {currentTeamLead && (
+            <div className="current-lead-info">
+              <HiOutlineUserCircle className="current-lead-icon" />
+              <div>
+                <span className="current-lead-label">Current Team Lead</span>
+                <span className="current-lead-name">
+                  {currentTeamLead.firstName} {currentTeamLead.lastName}
+                </span>
+              </div>
+            </div>
+          )}
+
+          <div className="form-group">
+            <label htmlFor="user" className="form-label">
+              Select New Team Lead <span className="required">*</span>
+            </label>
+            <select
+              className="form-select"
+              id="user"
+              value={selectedUser}
+              onChange={(e) => setSelectedUser(e.target.value)}
+              required
+            >
+              <option value="">Choose a user...</option>
+              {users.map((user) => (
+                <option key={user.id} value={user.id}>
+                  {user.firstName} {user.lastName} ({user.location})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-actions">
+            <button type="submit" className="btn btn-primary" disabled={loading}>
+              {loading ? (
+                <>
+                  <span className="spinner"></span>
+                  Assigning...
+                </>
+              ) : (
+                'Assign Team Lead'
+              )}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

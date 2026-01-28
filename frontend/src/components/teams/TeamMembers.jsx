@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { teamService } from '../../services/teamService';
+import { HiOutlineUserGroup, HiOutlineUsers } from 'react-icons/hi';
 
 const TeamMembers = () => {
   const [teams, setTeams] = useState([]);
@@ -46,24 +47,26 @@ const TeamMembers = () => {
   const getRoleBadgeClass = (role) => {
     switch (role) {
       case 'DEVELOPER':
-        return 'bg-primary';
+        return 'badge-developer';
       case 'QA':
-        return 'bg-success';
+        return 'badge-qa';
       case 'PRODUCT_MANAGER':
-        return 'bg-warning text-dark';
+        return 'badge-pm';
       default:
-        return 'bg-secondary';
+        return 'badge-default';
     }
   };
 
-  return (
-    <div>
-      <h3 className="mb-4">View Team Members</h3>
+  const formatRole = (role) => {
+    return role.replace('_', ' ');
+  };
 
-      <div className="row mb-4">
-        <div className="col-md-6">
+  return (
+    <div className="team-members-container">
+      <div className="form-card" style={{ marginBottom: '2rem' }}>
+        <div className="form-group">
           <label htmlFor="team" className="form-label">
-            Select Team <span className="text-danger">*</span>
+            Select Team <span className="required">*</span>
           </label>
           <select
             className="form-select"
@@ -82,29 +85,34 @@ const TeamMembers = () => {
       </div>
 
       {loading && (
-        <div className="text-center py-5">
-          <div className="spinner-border" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
+        <div className="loading-container">
+          <div className="spinner-large"></div>
+          <p>Loading team members...</p>
         </div>
       )}
 
       {error && (
-        <div className="alert alert-danger" role="alert">
-          {error}
+        <div className="alert alert-error">
+          <span>{error}</span>
         </div>
       )}
 
       {!loading && !error && selectedTeam && (
         <>
           {teamMembers.length === 0 ? (
-            <div className="alert alert-info" role="alert">
-              No members in this team. Assign users to get started.
+            <div className="empty-state">
+              <HiOutlineUsers className="empty-icon" />
+              <h3>No Members Found</h3>
+              <p>This team has no members yet. Assign users to get started.</p>
             </div>
           ) : (
-            <div className="table-responsive">
-              <table className="table table-striped table-hover">
-                <thead className="table-dark">
+            <div className="table-container">
+              <div className="table-header">
+                <HiOutlineUserGroup className="table-icon" />
+                <span>{teamMembers.length} Team Members</span>
+              </div>
+              <table className="data-table">
+                <thead>
                   <tr>
                     <th>Name</th>
                     <th>Gender</th>
@@ -116,13 +124,18 @@ const TeamMembers = () => {
                   {teamMembers.map((member) => (
                     <tr key={member.id}>
                       <td>
-                        {member.user.firstName} {member.user.lastName}
+                        <div className="member-name">
+                          <div className="member-avatar">
+                            {member.user.firstName.charAt(0)}
+                          </div>
+                          <span>{member.user.firstName} {member.user.lastName}</span>
+                        </div>
                       </td>
                       <td>{member.user.gender}</td>
                       <td>{member.user.location}</td>
                       <td>
-                        <span className={`badge ${getRoleBadgeClass(member.role)}`}>
-                          {member.role.replace('_', ' ')}
+                        <span className={`role-badge ${getRoleBadgeClass(member.role)}`}>
+                          {formatRole(member.role)}
                         </span>
                       </td>
                     </tr>
@@ -132,6 +145,14 @@ const TeamMembers = () => {
             </div>
           )}
         </>
+      )}
+
+      {!selectedTeam && !loading && (
+        <div className="empty-state">
+          <HiOutlineUserGroup className="empty-icon" />
+          <h3>Select a Team</h3>
+          <p>Choose a team from the dropdown above to view its members.</p>
+        </div>
       )}
     </div>
   );

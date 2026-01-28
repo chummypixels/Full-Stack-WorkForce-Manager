@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { userService } from '../../services/userService';
+import { HiOutlineCheckCircle, HiOutlineExclamationCircle } from 'react-icons/hi';
 
 const AddUser = () => {
   const [formData, setFormData] = useState({
@@ -37,7 +38,7 @@ const AddUser = () => {
       });
     } catch (error) {
       setAlert({
-        type: 'danger',
+        type: 'error',
         message: error.response?.data?.message || 'Failed to create user. Please try again.',
       });
     } finally {
@@ -46,95 +47,105 @@ const AddUser = () => {
   };
 
   return (
-    <div className="row justify-content-center">
-      <div className="col-md-8 col-lg-6">
-        <div className="card shadow-sm">
-          <div className="card-body">
-            <h3 className="card-title mb-4">Add New User</h3>
-
-            {alert && (
-              <div className={`alert alert-${alert.type} alert-dismissible fade show`} role="alert">
-                {alert.message}
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setAlert(null)}
-                ></button>
-              </div>
+    <div className="form-container">
+      <div className="form-card">
+        {alert && (
+          <div className={`alert alert-${alert.type}`}>
+            {alert.type === 'success' ? (
+              <HiOutlineCheckCircle className="alert-icon" />
+            ) : (
+              <HiOutlineExclamationCircle className="alert-icon" />
             )}
-
-            <form onSubmit={handleSubmit}>
-              <div className="mb-3">
-                <label htmlFor="firstName" className="form-label">
-                  First Name <span className="text-danger">*</span>
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="firstName"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              <div className="mb-3">
-                <label htmlFor="lastName" className="form-label">
-                  Last Name <span className="text-danger">*</span>
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="lastName"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              <div className="mb-3">
-                <label htmlFor="gender" className="form-label">
-                  Gender <span className="text-danger">*</span>
-                </label>
-                <select
-                  className="form-select"
-                  id="gender"
-                  name="gender"
-                  value={formData.gender}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">Select Gender</option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
-
-              <div className="mb-3">
-                <label htmlFor="location" className="form-label">
-                  Location <span className="text-danger">*</span>
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="location"
-                  name="location"
-                  value={formData.location}
-                  onChange={handleChange}
-                  placeholder="e.g., Lagos, Ikoyi"
-                  required
-                />
-              </div>
-
-              <button type="submit" className="btn btn-primary" disabled={loading}>
-                {loading ? 'Creating...' : 'Create User'}
-              </button>
-            </form>
+            <span>{alert.message}</span>
+            <button className="alert-close" onClick={() => setAlert(null)}>&times;</button>
           </div>
-        </div>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="firstName" className="form-label">
+                First Name <span className="required">*</span>
+              </label>
+              <input
+                type="text"
+                className="form-input"
+                id="firstName"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleChange}
+                placeholder="Enter first name"
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="lastName" className="form-label">
+                Last Name <span className="required">*</span>
+              </label>
+              <input
+                type="text"
+                className="form-input"
+                id="lastName"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleChange}
+                placeholder="Enter last name"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="gender" className="form-label">
+                Gender <span className="required">*</span>
+              </label>
+              <select
+                className="form-select"
+                id="gender"
+                name="gender"
+                value={formData.gender}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="location" className="form-label">
+                Location <span className="required">*</span>
+              </label>
+              <input
+                type="text"
+                className="form-input"
+                id="location"
+                name="location"
+                value={formData.location}
+                onChange={handleChange}
+                placeholder="e.g., Lagos, Ikoyi"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="form-actions">
+            <button type="submit" className="btn btn-primary" disabled={loading}>
+              {loading ? (
+                <>
+                  <span className="spinner"></span>
+                  Creating...
+                </>
+              ) : (
+                'Create User'
+              )}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
